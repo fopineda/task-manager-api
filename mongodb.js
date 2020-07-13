@@ -11,7 +11,7 @@ const connectionURL = 'mongodb://127.0.0.1:27017'
 const databaseName = 'task-manager' // Will automatically set the database to name
 
 // Call back, if error exists then something went wrong. If client exists, then it went well and you are connected
-MongoClient.connect(connectionURL, {userNewUrlParser: true}, (error, client) => {
+MongoClient.connect(connectionURL, {useNewUrlParser: true}, (error, client) => {
     if (error){
         return console.log('unable to connect to database')
     }
