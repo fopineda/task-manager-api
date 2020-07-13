@@ -11,17 +11,17 @@ const databaseName = 'task-manager' // Will automatically set the database to na
 
 // Call back, if error exists then something went wrong. If client exists, then it went well and you are connected
 MongoClient.connect(connectionURL, {userNewUrlParser: true}, (error, client) => {
-     if (error){
+    if (error){
         return console.log('unable to connect to database')
-     }
+    }
 
      // database reference to use
-     const db = client.db(databaseName)
+    const db = client.db(databaseName)
 
      // Database Name: task manager
      // Collection: users
-     db.collection('users').insertOne({
-         name: 'Felipe',
-         age: 23
-     })
+    db.collection('users').insertOne({
+        name: 'Felipe',
+        age: 23
+    })
 })

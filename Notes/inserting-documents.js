@@ -63,6 +63,10 @@ MongoClient.connect(connectionURL, {userNewUrlParser: true}, (error, client) => 
         {
             task: 'Finishing up NodeJS Udemy course.',
             Completed: false
+        },
+        {
+            task: 'Go for a long',
+            Completed: true
         }
     ], (error, result) => {
         if (error){ 

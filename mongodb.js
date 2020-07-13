@@ -28,15 +28,47 @@ MongoClient.connect(connectionURL, {useNewUrlParser: true}, (error, client) => {
     //     console.log(error)
     // })
 
-
     // delete a single task
     db.collection('tasks').deleteOne({
-        'task': 'Play Basketball'
+        'task': 'Play Soccer'
     }).then((result) => {
         console.log(result)
     }).catch((error) => {
         console.log(error)
     })
+
+    // insert many new tasks
+    // db.collection('tasks').insertMany([
+    //     {
+    //         task: 'Eat fruits',
+    //         Completed: true
+    //     },
+    //     {
+    //         task: 'Play Soccer',
+    //         Completed: true
+    //     },
+    //     {
+    //         task: 'Finish CWO',
+    //         Completed: false
+    //     },
+    //     {
+    //         task: 'Go for a long run',
+    //         Completed: true
+    //     }
+    // ], (error, result) => {
+    //     if (error){ 
+    //         return console.log('unable to insert tasks')
+    //     }
+
+    //     console.log(result.ops)
+    // })
+
+
+
+
+
+
+
 
 
 
