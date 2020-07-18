@@ -15,7 +15,7 @@ const User = require('../src/models/user')
 // })
 //////////////////////////////
 
-// update user's age
+// two async operations: update user's age and then count # of users with age 1
 User.findByIdAndUpdate('5f0deab3fb6d001ddb8246e6', {age: 1}).then((user) => {
     console.log(user)
     return User.countDocuments({age: 1})
