@@ -58,7 +58,7 @@ router.patch('/tasks/:id', async (req, res) => {
     const _id = req.params.id // params is an object with key value pairs created when you call the endpoint with params in the URL
     const newItems = req.body
     const updates = Object.keys(newItems)
-    const allowedUpdates = ['description', 'completed']
+    const allowedUpdates = ['description', 'complete']
     // loop through the user given new items and if it not in allowed updates then it is false
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
@@ -68,7 +68,14 @@ router.patch('/tasks/:id', async (req, res) => {
     
 
     try{
-        const task = await Task.findByIdAndUpdate(_id, newItems, { new: true, runValidators: true })
+        // const task = await Task.findByIdAndUpdate(_id, newItems, { new: true, runValidators: true })
+        
+        const task = await Task.findById(_id)
+        updates.forEach((update) => {
+            task[update] = req.body[update]
+        })
+        await task.save()
+
 
         if (!task){ // no task was found
             return res.status(404).send()

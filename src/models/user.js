@@ -1,9 +1,8 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const bcrypt = require('bcryptjs')
 
-// User model
-// name, fields (fields can be objects)
-const User = mongoose.model('User', {
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true, // built-in validators
@@ -43,6 +42,21 @@ const User = mongoose.model('User', {
         }
     }
 })
+
+userSchema.pre('save', async function(next) {
+    const user = this // user allows you access all the items the request provided
+
+    // hashing password - true when user is first created and true when password for user is modified
+    if (user.isModified('password')){
+        user.password = await bcrypt.hash(user.password, 8)
+    }
+
+    next() // next() acts as a sign that the async function is done, otherwise it'll hang
+})
+
+// User model
+// name, fields (fields can be objects)
+const User = mongoose.model('User', userSchema)
 
 // export it so other files can use it
 module.exports = User
