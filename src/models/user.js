@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
+        unique: true,
         required: true,
         trim: true,
         lowercase: true,
@@ -43,6 +44,27 @@ const userSchema = new mongoose.Schema({
     }
 })
 
+// creates the findByCredentials methods for the router to use
+userSchema.statics.findByCredentials = async (email, password) => {
+    const user = await User.findOne({ email: email })
+
+    // user not found from email given
+    if (!user) { 
+        throw new Error('Unable to login...')
+    }
+
+    // checks if the hash of the password matches the hash stored in the 
+    const isMatch = await bcrypt.compare(password, user.password)
+
+    // password did not match
+    if (!isMatch) { 
+        throw new Error('Unable to login...')
+    }
+
+    return user
+}
+
+// Hash the plain text password before saving
 userSchema.pre('save', async function(next) {
     const user = this // user allows you access all the items the request provided
 
@@ -51,7 +73,8 @@ userSchema.pre('save', async function(next) {
         user.password = await bcrypt.hash(user.password, 8)
     }
 
-    next() // next() acts as a sign that the async function is done, otherwise it'll hang
+    // next() acts as a sign that the async function is done, otherwise it'll hang
+    next() 
 })
 
 // User model

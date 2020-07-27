@@ -12,9 +12,11 @@ router.post('/tasks', async (req, res) => {
 
     try{
         await task.save()
-        res.status(201).send(task) // send to the sender
+        // send to the sender
+        res.status(201).send(task) 
     } catch (error) {
-        res.status(400).send(error) // bad request.error
+        // bad request.error
+        res.status(400).send(error) 
     }
 })
 
@@ -28,7 +30,8 @@ router.get('/tasks', async (req, res) => {
         const tasks = await Task.find({})
         res.send(tasks)
     } catch (error) {
-        res.status(500).send() // internal service error.send nothing as it already send stuff
+        // internal service error.send nothing as it already send stuff
+        res.status(500).send() 
     } 
 })
 
@@ -37,7 +40,8 @@ router.get('/tasks', async (req, res) => {
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.find() where Model is Task (see requires)
 router.get('/tasks/:id', async (req, res) => {
-    const _id = req.params.id // params is an object with key value pairs created when you call the endpoint with params in the URL
+    // params is an object with key value pairs created when you call the endpoint with params in the URL
+    const _id = req.params.id 
     
     try {
         const task = await Task.find({_id})
@@ -55,14 +59,14 @@ router.get('/tasks/:id', async (req, res) => {
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.findByIdAndUpdate() where Model is Task (see requires)
 router.patch('/tasks/:id', async (req, res) => {
-    const _id = req.params.id // params is an object with key value pairs created when you call the endpoint with params in the URL
-    const newItems = req.body
+    const _id = req.params.id 
     const updates = Object.keys(newItems)
     const allowedUpdates = ['description', 'complete']
     // loop through the user given new items and if it not in allowed updates then it is false
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
-    if (!isValidOperation){ // invalid update items
+    // invalid update items
+    if (!isValidOperation){ 
         return res.status(400).send({ error: 'invalid updates!' })
     }
     
@@ -76,8 +80,8 @@ router.patch('/tasks/:id', async (req, res) => {
         })
         await task.save()
 
-
-        if (!task){ // no task was found
+        // no task was found
+        if (!task){ 
             return res.status(404).send()
         }
 
@@ -96,8 +100,9 @@ router.delete('/tasks/:id', async (req, res) => {
 
     try{
         const task = await Task.findByIdAndDelete(_id)
-
-        if (!task){ // no task found
+        
+        // no task found
+        if (!task){ 
             return res.status(404).send()
         }
 

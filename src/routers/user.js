@@ -18,6 +18,19 @@ router.post('/users', async (req, res) => {
     }
 })
 
+// POST: localhost:3000/users/login
+// DESCRIPTION: logins user
+// endpoint uses method defined in model user
+router.post('/users/login', async (req, res) => {
+    try {
+        // email and password are given when logging in
+        const user = await  User.findByCredentials(req.body.email, req.body.password)
+        res.send(user)
+    } catch (error) {
+        res.status(400).send()
+    }
+})
+
 // GET: localhost:3000/users
 // DESCRIPTION: Obtain a list of users
 // This endpoint uses Mongoose API
@@ -27,7 +40,8 @@ router.get('/users', async (req, res) => {
         const users = await User.find({})
         res.send(users)
     } catch (error) {
-        res.status(500).send() // internal service error.send nothing as it already send stuff
+        // internal service error.send nothing as it already send stuff
+        res.status(500).send() 
     } 
 })
 
@@ -36,7 +50,8 @@ router.get('/users', async (req, res) => {
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.find() where Model is User (see requires)
 router.get('/users/:id', async (req, res) => {
-    const _id = req.params.id // params is an object with key value pairs created when you call the endpoint with params in the URL
+    // params is an object with key value pairs created when you call the endpoint with params in the URL
+    const _id = req.params.id 
     
     try {
         const user = await User.find({_id})
@@ -55,14 +70,15 @@ router.get('/users/:id', async (req, res) => {
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.findByIdAndUpdate() where Model is User (see requires)
 router.patch('/users/:id', async (req, res) => {
-    const _id = req.params.id // params is an object with key value pairs created when you call the endpoint with params in the URL
+    const _id = req.params.id 
     const newItems = req.body
     const updates = Object.keys(newItems)
     const allowedUpdates = ['name', 'email', 'password', 'age']
     // loop through the user given new items and if it not in allowed updates then it is false
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
-    if (!isValidOperation){ // invalid update items
+    // invalid update items
+    if (!isValidOperation){ 
         return res.status(400).send({ error: 'invalid updates!' })
     }
     
@@ -96,7 +112,8 @@ router.delete('/users/:id', async (req, res) => {
     try{
         const user = await User.findByIdAndDelete(_id)
 
-        if (!user){ // no user found
+        // no user found
+        if (!user){ 
             return res.status(404).send()
         }
 
