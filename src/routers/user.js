@@ -5,6 +5,7 @@ const router = new express.Router()
 
 // POST: localhost:3000/users
 // DESCRIPTION: Creates new user (name, email, password) 
+// Does not require authentication
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.save() where Model is User (see requires)
 router.post('/users', async (req, res) => {
@@ -22,6 +23,7 @@ router.post('/users', async (req, res) => {
 
 // POST: localhost:3000/users/login
 // DESCRIPTION: logins user
+// Does not requires authentication
 // endpoint uses method defined in model user
 router.post('/users/login', async (req, res) => {
     try {
