@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -41,8 +42,28 @@ const userSchema = new mongoose.Schema({
                 throw new Error('Password cannot contain "password" in value...')
             }
         }
-    }
+    },
+    // array of objects, each has a token property
+    tokens: [{
+        token: {
+            type: String,
+            required: true
+        }
+    }]
 })
+
+// generates and adds the token to the user object (being passee in from the router)
+userSchema.methods.generateAuthToken =  async function () {
+    const user = this
+    const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
+
+    // adding the token generated to the object for storing in the database
+    user.tokens = user.tokens.concat({ token })
+    await user.save()
+
+    return token
+}
+
 
 // creates the findByCredentials methods for the router to use
 userSchema.statics.findByCredentials = async (email, password) => {

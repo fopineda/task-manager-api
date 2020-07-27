@@ -14,3 +14,15 @@ app.listen(port, () => {
     console.log('Server is up on port ' + port)
 })
 
+const jwt = require('jsonwebtoken')
+
+const myFunction = async () => {
+    // unique identifier is the id, and it returns your token
+    const token = jwt.sign( { _id: 'abc123' }, 'thisismynewcourse', {expiresIn: '7 seconds'})
+    console.log(token)
+
+    const data = jwt.verify(token, 'thisismynewcourse')
+    console.log(data)
+}
+
+// myFunction()

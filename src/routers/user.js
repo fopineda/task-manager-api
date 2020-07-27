@@ -4,7 +4,7 @@ const router = new express.Router()
 
 
 // POST: localhost:3000/users
-// DESCRIPTION: Creates new user (name, email, password)
+// DESCRIPTION: Creates new user (name, email, password) 
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.save() where Model is User (see requires)
 router.post('/users', async (req, res) => {
@@ -12,11 +12,13 @@ router.post('/users', async (req, res) => {
 
     try {
         await user.save()
-        res.status(201).send(user)
+        const token = await user.generateAuthToken()
+        res.status(201).send({ user, token })
     } catch (error) {
         res.status(400).send(error)
     }
 })
+
 
 // POST: localhost:3000/users/login
 // DESCRIPTION: logins user
@@ -24,8 +26,11 @@ router.post('/users', async (req, res) => {
 router.post('/users/login', async (req, res) => {
     try {
         // email and password are given when logging in
+        // method created for model (schema.statics.) in user model
         const user = await  User.findByCredentials(req.body.email, req.body.password)
-        res.send(user)
+        // method created for user instance (schema.methods.) in user model
+        const token = await user.generateAuthToken()
+        res.send({ user, token })
     } catch (error) {
         res.status(400).send()
     }
