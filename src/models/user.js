@@ -52,7 +52,21 @@ const userSchema = new mongoose.Schema({
     }]
 })
 
-// generates and adds the token to the user object (being passee in from the router)
+// makes the user object modifiable and removes the non-public elements of the object so it can be sent to the users 
+// overwrites the toJSON method that is already being ran on the objects
+userSchema.methods.toJSON = function() {
+    const user = this
+    const userObject = user.toObject()
+
+    // users will not have passwords or tokens being sent to them
+    delete userObject.password
+    delete userObject.tokens
+
+    return userObject
+}
+
+// generates and adds the token to the user object (being passed in from the router)
+// object instance use this
 userSchema.methods.generateAuthToken =  async function () {
     const user = this
     const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
@@ -66,6 +80,7 @@ userSchema.methods.generateAuthToken =  async function () {
 
 
 // creates the findByCredentials methods for the router to use
+// Models use this
 userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({ email: email })
 
