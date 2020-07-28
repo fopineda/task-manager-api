@@ -1,5 +1,6 @@
 const express = require('express')
 const User = require('../models/user') // grabs the user model 
+const auth = require('../middleware/auth') // grabs the auth middleware
 const router = new express.Router()
 
 
@@ -38,18 +39,13 @@ router.post('/users/login', async (req, res) => {
     }
 })
 
-// GET: localhost:3000/users
+// GET: localhost:3000/users/me
 // DESCRIPTION: Obtain a list of users
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.find() where Model is User (see requires)
-router.get('/users', async (req, res) => {
-    try {
-        const users = await User.find({})
-        res.send(users)
-    } catch (error) {
-        // internal service error.send nothing as it already send stuff
-        res.status(500).send() 
-    } 
+router.get('/users/me', auth, async (req, res) => {
+    // because of the /me, the route will only run if the user is authenticated and will only send that user's data
+    res.send(req.user)
 })
 
 // GET: localhost:3000/users/:id (localhost:3000/users/123456789)
