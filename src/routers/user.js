@@ -6,7 +6,7 @@ const router = new express.Router()
 
 // POST: localhost:3000/users
 // DESCRIPTION: Creates new user (name, email, password) 
-// Does not require authentication
+// Requires Authentication: No
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.save() where Model is User (see requires)
 router.post('/users', async (req, res) => {
@@ -24,7 +24,7 @@ router.post('/users', async (req, res) => {
 
 // POST: localhost:3000/users/login
 // DESCRIPTION: logins user
-// Does not requires authentication
+// Requires Authentication: Yes
 // endpoint uses method defined in model user
 router.post('/users/login', async (req, res) => {
     try {
@@ -39,8 +39,52 @@ router.post('/users/login', async (req, res) => {
     }
 })
 
+// POST: localhost:3000/users/logout
+// DESCRIPTION: logs out users
+// Requires Authentication: Yes
+// This endpoint uses Mongoose API
+// endpoint uses method defined in model user
+router.post('/users/logout', auth, async (req, res) => {
+    // "logs" out that token and not any other ones as they may be other forms of authentication (maybe on a different device)
+    try {
+        // does it for every token in the array
+            // (true) if the user's token does not match the current token being scanned, then keep it in the array 
+            // (false) if the user's token does match the current token being scanned, then remove it from the array
+        // Basically removing all instances of that token from the array
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token !== req.token
+        })
+        // saves the req body to the database, thus updating the database
+        await req.user.save()
+
+        res.send()
+    } catch (error) {
+        res.status(500).send()
+    }
+})
+
+// POST: localhost:3000/users/logoutAll
+// DESCRIPTION: logs out all instances of a user
+// Requires Authentication: Yes
+// This endpoint uses Mongoose API
+// endpoint uses method defined in model user
+router.post('/users/logoutAll', auth, async (req, res) => {
+    try {
+        // clears tokens array, thus all tokens, thus all instances of users logged in
+        req.user.tokens = []
+
+        // saves the req body to the database, thus updating the database
+        await req.user.save()
+
+        res.send()
+    } catch (error) {
+        res.status(500).send()
+    }
+})
+
 // GET: localhost:3000/users/me
 // DESCRIPTION: Obtain a list of users
+// Requires Authentication: Yes
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.find() where Model is User (see requires)
 router.get('/users/me', auth, async (req, res) => {
