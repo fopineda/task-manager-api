@@ -6,7 +6,7 @@ const router = new express.Router()
 
 // POST: localhost:3000/users
 // DESCRIPTION: Creates new user (name, email, password) 
-// Requires Authentication: No
+// REQUIRES AUTHENTICATION: No
 // This endpoint uses Mongoose API
 // Mongoose Queries: Model.save() where Model is User (see requires)
 router.post('/users', async (req, res) => {
@@ -24,8 +24,8 @@ router.post('/users', async (req, res) => {
 
 // POST: localhost:3000/users/login
 // DESCRIPTION: logins user
-// Requires Authentication: Yes
-// endpoint uses method defined in model user
+// REQUIRES AUTHENTICATION: Yes
+// endpoint uses methods defined in model user
 router.post('/users/login', async (req, res) => {
     try {
         // email and password are given when logging in
@@ -39,11 +39,11 @@ router.post('/users/login', async (req, res) => {
     }
 })
 
+
 // POST: localhost:3000/users/logout
-// DESCRIPTION: logs out users
-// Requires Authentication: Yes
+// DESCRIPTION: logs out user
+// REQUIRES AUTHENTICATION: Yes
 // This endpoint uses Mongoose API
-// endpoint uses method defined in model user
 router.post('/users/logout', auth, async (req, res) => {
     // "logs" out that token and not any other ones as they may be other forms of authentication (maybe on a different device)
     try {
@@ -63,11 +63,10 @@ router.post('/users/logout', auth, async (req, res) => {
     }
 })
 
+
 // POST: localhost:3000/users/logoutAll
 // DESCRIPTION: logs out all instances of a user
-// Requires Authentication: Yes
-// This endpoint uses Mongoose API
-// endpoint uses method defined in model user
+// REQUIRES AUTHENTICATION: Yes
 router.post('/users/logoutAll', auth, async (req, res) => {
     try {
         // clears tokens array, thus all tokens, thus all instances of users logged in
@@ -82,42 +81,21 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     }
 })
 
+
 // GET: localhost:3000/users/me
-// DESCRIPTION: Obtain a list of users
+// DESCRIPTION: obtains user
 // Requires Authentication: Yes
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.find() where Model is User (see requires)
 router.get('/users/me', auth, async (req, res) => {
     // because of the /me, the route will only run if the user is authenticated and will only send that user's data
     res.send(req.user)
 })
 
-// GET: localhost:3000/users/:id (localhost:3000/users/123456789)
-// DESCRIPTION: Obtain a user from a given id
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.find() where Model is User (see requires)
-router.get('/users/:id', async (req, res) => {
-    // params is an object with key value pairs created when you call the endpoint with params in the URL
-    const _id = req.params.id 
-    
-    try {
-        const user = await User.find({_id})
-        if (!user){
-            return res.status(404).send()
-        }
-        res.send(user)
-    } catch (error) {
-        res.status(500).send()
-    } 
-})
 
-
-// PATCH: localhost:3000/users/:id (localhost:3000/users/123456789)
-// DESCRIPTION: Update a user from a given id
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.findByIdAndUpdate() where Model is User (see requires)
-router.patch('/users/:id', async (req, res) => {
-    const _id = req.params.id 
+// PATCH: localhost:3000/users/:id (localhost:3000/users/me)
+// DESCRIPTION: Updates a user 
+// REQUIRES AUTHENTICATION: Yes
+router.patch('/users/me', auth, async (req, res) => {
+    const _id = req.user._id
     const newItems = req.body
     const updates = Object.keys(newItems)
     const allowedUpdates = ['name', 'email', 'password', 'age']
@@ -129,42 +107,37 @@ router.patch('/users/:id', async (req, res) => {
         return res.status(400).send({ error: 'invalid updates!' })
     }
     
-
     try{
-        // const user = await User.findByIdAndUpdate(_id, newItems, { new: true, runValidators: true })
-
-        const user = await User.findById(_id)
         updates.forEach((update) => {
-            user[update] = req.body[update]
+            req.user[update] = req.body[update]
         })
-        await user.save()
+        await req.user.save()
 
-        if (!user){ // no user was found
-            return res.status(404).send()
-        }
-
-        res.send(user)
+        res.send(req.user)
     } catch (error) {
         res.status(400).send()
     }
 })
 
-// DELETE: localhost:3000/users/:id (localhost:3000/users/123456789)
-// DESCRIPTION: delete a user from a given id
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.findByIdAndDelete() where Model is User (see requires)
-router.delete('/users/:id', async (req, res) => {
-    const _id = req.params.id
+
+// DELETE: localhost:3000/users/:id (localhost:3000/users/me)
+// DESCRIPTION: deletes a user account
+// Requires Authentication: Yes
+router.delete('/users/me', auth, async (req, res) => {
+    // because of the /me, the route will only run if the user is authenticated and will only send that user's data
+    const _id = req.user._id
 
     try{
-        const user = await User.findByIdAndDelete(_id)
+        // const user = await User.findByIdAndDelete(_id)
 
-        // no user found
-        if (!user){ 
-            return res.status(404).send()
-        }
+        // // no user found
+        // if (!user){ 
+        //     return res.status(404).send()
+        // }
 
-        res.send(user)
+        await req.user.remove()
+
+        res.send(req.user)
     }catch(error){
         res.status(500).send()
     }
