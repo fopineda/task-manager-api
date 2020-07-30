@@ -124,17 +124,7 @@ router.patch('/users/me', auth, async (req, res) => {
 // DESCRIPTION: deletes a user account
 // Requires Authentication: Yes
 router.delete('/users/me', auth, async (req, res) => {
-    // because of the /me, the route will only run if the user is authenticated and will only send that user's data
-    const _id = req.user._id
-
     try{
-        // const user = await User.findByIdAndDelete(_id)
-
-        // // no user found
-        // if (!user){ 
-        //     return res.status(404).send()
-        // }
-
         await req.user.remove()
 
         res.send(req.user)
