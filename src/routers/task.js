@@ -1,34 +1,42 @@
 const express = require('express')
-const Task = require('../models/task') // grabs the task model 
+const Task = require('../models/task') // grabs the task model
+const auth = require('../middleware/auth') 
 const router = new express.Router()
 
 
 // POST: localhost:3000/tasks
-// DESCRIPTION: Creates new task (description, complete)
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.save() where Model is Task (see requires)
-router.post('/tasks', async (req, res) => {
-    const task = new Task(req.body)
+// DESCRIPTION: Creates new task (description, complete) for an authenticated user
+// REQUIRES AUTHENTICATION: Yes
+// NOTE: endpoint uses Mongoose methods (save)
+router.post('/tasks', auth, async (req, res) => {
+    const task = new Task({
+        // copies over all the elements in req.body
+        ...req.body,
+        // id of the owner
+        owner: req.user._id
+    })
 
     try{
         await task.save()
-        // send to the sender
         res.status(201).send(task) 
     } catch (error) {
-        // bad request.error
         res.status(400).send(error) 
     }
 })
 
 
 // GET: localhost:3000/tasks
-// DESCRIPTION: Obtain a list of tasks [ for specific user ]
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.find() where Model is Task (see requires)
-router.get('/tasks', async (req, res) => {
+// DESCRIPTION: Obtain a list of tasks for an authenticated user
+// REQUIRES AUTHENTICATION: Yes
+// NOTE: endpoint uses Mongoose methods (find) in commented out alternative solution
+router.get('/tasks', auth, async (req, res) => {
     try {
-        const tasks = await Task.find({})
-        res.send(tasks)
+        // ALSO WORKS
+        // const tasks = await Task.find({ owner: req.user._id })
+        // res.send(tasks)
+        await req.user.populate('tasks').execPopulate()
+        res.send(req.user.tasks)
+        
     } catch (error) {
         // internal service error.send nothing as it already send stuff
         res.status(500).send() 
@@ -36,15 +44,12 @@ router.get('/tasks', async (req, res) => {
 })
 
 // GET: localhost:3000/tasks/:id (localhost:3000/tasks/123456789) 
-// DESCRIPTION: Obtain a user from a given id [ for specific user ]
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.find() where Model is Task (see requires)
-router.get('/tasks/:id', async (req, res) => {
-    // params is an object with key value pairs created when you call the endpoint with params in the URL
-    const _id = req.params.id 
-    
+// DESCRIPTION: Obtain a task for an authenticated user
+// REQUIRES AUTHENTICATION: Yes
+// NOTE: endpoint uses Mongoose methods (findOne)
+router.get('/tasks/:id', auth, async (req, res) => {    
     try {
-        const task = await Task.find({_id})
+        const task = await Task.findOne({ _id: req.params.id, owner: req.user._id})
         if (!task){
             return res.status(404).send()
         }
@@ -55,12 +60,11 @@ router.get('/tasks/:id', async (req, res) => {
 })
 
 // PATCH: localhost:3000/tasks/:id (localhost:3000/task/123456789)
-// DESCRIPTION: Update a task from a given id
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.findByIdAndUpdate() where Model is Task (see requires)
-router.patch('/tasks/:id', async (req, res) => {
-    const _id = req.params.id 
-    const updates = Object.keys(newItems)
+// DESCRIPTION: Update a task for an authenticated user
+// REQUIRES AUTHENTICATION: Yes
+// NOTE: endpoint uses Mongoose methods (findOne, save)
+router.patch('/tasks/:id', auth, async (req, res) => {
+    const updates = Object.keys(req.body)
     const allowedUpdates = ['description', 'complete']
     // loop through the user given new items and if it not in allowed updates then it is false
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
@@ -72,19 +76,17 @@ router.patch('/tasks/:id', async (req, res) => {
     
 
     try{
-        // const task = await Task.findByIdAndUpdate(_id, newItems, { new: true, runValidators: true })
-        
-        const task = await Task.findById(_id)
-        updates.forEach((update) => {
-            task[update] = req.body[update]
-        })
-        await task.save()
+        const task = await Task.findOne({ _id: req.params.id, owner: req.user._id})
 
         // no task was found
         if (!task){ 
             return res.status(404).send()
         }
 
+        updates.forEach((update) => {
+            task[update] = req.body[update]
+        })
+        await task.save()
         res.send(task)
     } catch (error) {
         res.status(400).send()
@@ -92,14 +94,13 @@ router.patch('/tasks/:id', async (req, res) => {
 })
 
 // DELETE: localhost:3000/task/:id (localhost:3000/tasks/123456789)
-// DESCRIPTION: delete a task from a given id
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.findByIdAndDelete() where Model is Task (see requires)
-router.delete('/tasks/:id', async (req, res) => {
-    const _id = req.params.id
+// DESCRIPTION: delete a task for a authenticated user
+// REQUIRES AUTHENTICATION: Yes
+// NOTE: endpoint uses Mongoose methods (findOneAndDelete)
+router.delete('/tasks/:id', auth, async (req, res) => {
 
     try{
-        const task = await Task.findByIdAndDelete(_id)
+        const task = await Task.findOneAndDelete({ _id: req.params.id, owner: req.user._id})
         
         // no task found
         if (!task){ 

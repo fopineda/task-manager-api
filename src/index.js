@@ -29,13 +29,23 @@ app.listen(port, () => {
     console.log('Server is up on port ' + port)
 })
 
-const jwt = require('jsonwebtoken')
-const myFunction = async () => {
-    // unique identifier is the id, and it returns your token
-    const token = jwt.sign( { _id: 'abc123' }, 'thisismynewcourse', {expiresIn: '7 seconds'})
-    console.log(token)
+const Task = require('./models/task')
+const User = require('./models/user')
 
-    const data = jwt.verify(token, 'thisismynewcourse')
-    console.log(data)
+const main = async () => {
+    // task -> user
+    // const task = await Task.findById('5f22fbd0bfc5ac211ef7d26b') // finds task
+    // await task.populate('owner').execPopulate() // populates owner field in task with the user object of that associating user id (reference task model)
+    // console.log(task)
+    // console.log('-------------------------')
+    // console.log(task.owner)
+
+    // user -> all tasks
+    // const user = await User.findById('5f22fb96bfc5ac211ef7d269') // finds user
+    // await user.populate('tasks').execPopulate() // populates the virtual tasks field added to the user, virtual because field doesn't exist in the data, just code (reference user mode)
+    // console.log(user)
+    // console.log('-------------------------')
+    // console.log(user.tasks)
 }
-// myFunction()
+
+// main()

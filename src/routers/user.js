@@ -7,8 +7,7 @@ const router = new express.Router()
 // POST: localhost:3000/users
 // DESCRIPTION: Creates new user (name, email, password) 
 // REQUIRES AUTHENTICATION: No
-// This endpoint uses Mongoose API
-// Mongoose Queries: Model.save() where Model is User (see requires)
+// NOTE: endpoint uses methods defined in model user and Mongoose methods (save)
 router.post('/users', async (req, res) => {
     const user = new User(req.body)
 
@@ -25,7 +24,7 @@ router.post('/users', async (req, res) => {
 // POST: localhost:3000/users/login
 // DESCRIPTION: logins user
 // REQUIRES AUTHENTICATION: Yes
-// endpoint uses methods defined in model user
+// NOTE: endpoint uses methods defined in model user
 router.post('/users/login', async (req, res) => {
     try {
         // email and password are given when logging in
@@ -43,7 +42,7 @@ router.post('/users/login', async (req, res) => {
 // POST: localhost:3000/users/logout
 // DESCRIPTION: logs out user
 // REQUIRES AUTHENTICATION: Yes
-// This endpoint uses Mongoose API
+// NOTE: endpoint uses Mongoose methods (save)
 router.post('/users/logout', auth, async (req, res) => {
     // "logs" out that token and not any other ones as they may be other forms of authentication (maybe on a different device)
     try {
@@ -67,6 +66,7 @@ router.post('/users/logout', auth, async (req, res) => {
 // POST: localhost:3000/users/logoutAll
 // DESCRIPTION: logs out all instances of a user
 // REQUIRES AUTHENTICATION: Yes
+// NOTE: endpoint uses Mongoose methods (save)
 router.post('/users/logoutAll', auth, async (req, res) => {
     try {
         // clears tokens array, thus all tokens, thus all instances of users logged in
@@ -94,8 +94,8 @@ router.get('/users/me', auth, async (req, res) => {
 // PATCH: localhost:3000/users/:id (localhost:3000/users/me)
 // DESCRIPTION: Updates a user 
 // REQUIRES AUTHENTICATION: Yes
+// NOTE: endpoint uses Mongoose methods (save)
 router.patch('/users/me', auth, async (req, res) => {
-    const _id = req.user._id
     const newItems = req.body
     const updates = Object.keys(newItems)
     const allowedUpdates = ['name', 'email', 'password', 'age']

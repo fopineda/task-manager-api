@@ -52,6 +52,18 @@ const userSchema = new mongoose.Schema({
     }]
 })
 
+// virtual field, not stored in the database
+// meant to reference Task virtually, not to actually have a field in the database
+// relationship creator
+userSchema.virtual('tasks', {
+    // mode name
+    ref: 'Task',
+    // where the local data is stored
+    localField: '_id',
+    // name of the field on the other thing (Task), that'll create relationship
+    foreignField: 'owner'
+})
+
 // makes the user object modifiable and removes the non-public elements of the object so it can be sent to the users 
 // overwrites the toJSON method that is already being ran on the objects
 userSchema.methods.toJSON = function() {
