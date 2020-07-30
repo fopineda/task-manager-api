@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
-const Task = mongoose.model('Task', {
+const taskSchema = new mongoose.Schema({
+    // schema fields
     description: {
         type: String,
         trim: true,
@@ -17,7 +18,13 @@ const Task = mongoose.model('Task', {
         // references the name of the User model, which is 'User'
         ref: 'User'
     }
+}, {
+    // schema options
+    timestamps: true
 })
+
+// Task model
+const Task = mongoose.model('Task', taskSchema)
 
 // export it so other files can use it
 module.exports = Task

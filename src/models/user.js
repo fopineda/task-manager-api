@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const Task = require('./task')
 
 const userSchema = new mongoose.Schema({
+    // schema fields
     name: {
         type: String,
         required: true, // built-in validators
@@ -51,6 +52,9 @@ const userSchema = new mongoose.Schema({
             required: true
         }
     }]
+}, {
+    // schema options
+    timestamps: true
 })
 
 // virtual field, not stored in the database
@@ -137,7 +141,6 @@ userSchema.pre('remove', async function(next){
 })
 
 // User model
-// name, fields (fields can be objects)
 const User = mongoose.model('User', userSchema)
 
 // export it so other files can use it
