@@ -27,6 +27,7 @@ router.post('/tasks', auth, async (req, res) => {
 
 // GET: localhost:3000/tasks
 // GET: localhost:3000/tasks?completed=true
+// GET: localhost:3000/tasks?limit=10&skip=10 (only get 10 per page, but skip the first 10)
 // DESCRIPTION: Obtain a list of tasks for an authenticated user (all, completed, or incomplete tasks)
 // REQUIRES AUTHENTICATION: Yes
 // NOTE: endpoint uses Mongoose methods (find) in commented out alternative solution
@@ -42,7 +43,11 @@ router.get('/tasks', auth, async (req, res) => {
         await req.user.populate({
             path: 'tasks',
             // send back only that match the criteria
-            match
+            match,
+            options: {
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip)
+            }
         }).execPopulate()
         // send tasks located inn that virtual field 'tasks'
         res.send(req.user.tasks)
