@@ -1,6 +1,7 @@
 const express = require('express')
 const User = require('../models/user') // grabs the user model 
 const auth = require('../middleware/auth') // grabs the auth middleware
+const multer = require('multer')
 const router = new express.Router()
 
 
@@ -91,7 +92,7 @@ router.get('/users/me', auth, async (req, res) => {
 })
 
 
-// PATCH: localhost:3000/users/:id (localhost:3000/users/me)
+// PATCH: localhost:3000/users/me (localhost:3000/users/me)
 // DESCRIPTION: Updates a user 
 // REQUIRES AUTHENTICATION: Yes
 // NOTE: endpoint uses Mongoose methods (save)
@@ -120,7 +121,7 @@ router.patch('/users/me', auth, async (req, res) => {
 })
 
 
-// DELETE: localhost:3000/users/:id (localhost:3000/users/me)
+// DELETE: localhost:3000/users/me (localhost:3000/users/me)
 // DESCRIPTION: deletes a user account
 // Requires Authentication: Yes
 router.delete('/users/me', auth, async (req, res) => {
@@ -131,6 +132,31 @@ router.delete('/users/me', auth, async (req, res) => {
     }catch(error){
         res.status(500).send()
     }
+})
+
+
+// POST: localhost:3000/users/me/avatar (localhost:3000/users/me/avatar)
+// DESCRIPTION: uploads avatar image
+// Requires Authentication: <...>
+const upload = multer({
+    dest: 'avatars',
+    limits: {
+        // 1000000 = 1 megabyte
+        fileSize: 1000000,
+    },
+    fileFilter(req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+            return cb(new Error('Please upload a jpg, jpeg, or png file...'))
+        }
+        cb(undefined, true)
+    }
+})
+
+router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+    res.status(200).send()
+}, (error, req, res, next) => {
+    // callback to disguise Multer errors as yours, making the errors simpler
+    res.status(400).send({ error: error.message})
 })
 
 
