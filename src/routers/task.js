@@ -5,7 +5,7 @@ const router = new express.Router()
 
 
 // POST: localhost:3000/tasks
-// DESCRIPTION: Creates new task (description, complete) for an authenticated user
+// DESCRIPTION: Creates new task (description, completed) for an authenticated user
 // REQUIRES AUTHENTICATION: Yes
 // NOTE: endpoint uses Mongoose methods (save)
 router.post('/tasks', auth, async (req, res) => {
@@ -26,17 +26,26 @@ router.post('/tasks', auth, async (req, res) => {
 
 
 // GET: localhost:3000/tasks
-// DESCRIPTION: Obtain a list of tasks for an authenticated user
+// GET: localhost:3000/tasks?completed=true
+// DESCRIPTION: Obtain a list of tasks for an authenticated user (all, completed, or incomplete tasks)
 // REQUIRES AUTHENTICATION: Yes
 // NOTE: endpoint uses Mongoose methods (find) in commented out alternative solution
 router.get('/tasks', auth, async (req, res) => {
+    const match = {}
+
+    if (req.query.completed){
+        match.completed = req.query.completed === 'true'
+    }
+
     try {
-        // ALSO WORKS
-        // const tasks = await Task.find({ owner: req.user._id })
-        // res.send(tasks)
-        await req.user.populate('tasks').execPopulate()
+        // virtually create the 'tasks' field on user and populate it with the tasks that belong to that user
+        await req.user.populate({
+            path: 'tasks',
+            // send back only that match the criteria
+            match
+        }).execPopulate()
+        // send tasks located inn that virtual field 'tasks'
         res.send(req.user.tasks)
-        
     } catch (error) {
         // internal service error.send nothing as it already send stuff
         res.status(500).send() 
@@ -65,7 +74,7 @@ router.get('/tasks/:id', auth, async (req, res) => {
 // NOTE: endpoint uses Mongoose methods (findOne, save)
 router.patch('/tasks/:id', auth, async (req, res) => {
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['description', 'complete']
+    const allowedUpdates = ['description', 'completed']
     // loop through the user given new items and if it not in allowed updates then it is false
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
