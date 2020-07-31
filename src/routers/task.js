@@ -25,17 +25,25 @@ router.post('/tasks', auth, async (req, res) => {
 })
 
 
-// GET: localhost:3000/tasks
-// GET: localhost:3000/tasks?completed=true
+// GET: localhost:3000/tasks (all tasks no filtering)
+// GET: localhost:3000/tasks?completed=true (all completed tasks)
 // GET: localhost:3000/tasks?limit=10&skip=10 (only get 10 per page, but skip the first 10)
-// DESCRIPTION: Obtain a list of tasks for an authenticated user (all, completed, or incomplete tasks)
+// GET: localhost:3000/tasks?sortBy=createdAt:desc (sort tasks by createdAt field at a descending manner)
+// DESCRIPTION: Obtain a list of tasks (may be filtered) for an authenticated user 
 // REQUIRES AUTHENTICATION: Yes
 // NOTE: endpoint uses Mongoose methods (find) in commented out alternative solution
 router.get('/tasks', auth, async (req, res) => {
     const match = {}
+    const sort = {}
 
     if (req.query.completed){
         match.completed = req.query.completed === 'true'
+    }
+
+    if (req.query.sortBy){
+        const parts = req.query.sortBy.split(':')
+        // field: 1 (asc) || -1 (desc)
+        sort[parts[0]] = parts[1] === 'desc' ? -1 : 1
     }
 
     try {
@@ -46,10 +54,11 @@ router.get('/tasks', auth, async (req, res) => {
             match,
             options: {
                 limit: parseInt(req.query.limit),
-                skip: parseInt(req.query.skip)
+                skip: parseInt(req.query.skip),
+                sort
             }
         }).execPopulate()
-        // send tasks located inn that virtual field 'tasks'
+        // send tasks located in that virtual field 'tasks'
         res.send(req.user.tasks)
     } catch (error) {
         // internal service error.send nothing as it already send stuff
