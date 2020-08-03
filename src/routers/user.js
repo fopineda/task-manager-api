@@ -179,4 +179,27 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
 })
 
 
+// GET: localhost:3000/users/me/avatar (localhost:3000/users/me/avatar)
+// DESCRIPTION: get avatar image by id
+// REQUIRES AUTHENTICATION: No
+// NOTE: endpoint uses Mongoose methods (save)
+// NOTE: image is only seen through browser
+router.get('/users/:id/avatar', async (req, res) => {
+    try{
+        const user = await User.findById(req.params.id)
+
+        if (!user || !user.avatar) {
+            // no user or no user avatar field
+            throw new Error()
+        }
+
+        // normally 'application/json'
+        res.set('Content-Type','image/jpg')
+        res.send(user.avatar)
+    } catch (error) {
+        res.status(404).send()
+    }
+})
+
+
 module.exports = router
