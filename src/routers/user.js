@@ -5,6 +5,10 @@ const multer = require('multer')
 const router = new express.Router()
 
 
+// use req.user.<SCHEMA_FIELDS> to obtain items being sent by the requester. 
+// You can also use it to save items onto the user object to be put on the database.
+    // Just remember that you need to save ( await req.user.save() ) the user object for it be on the database
+
 // POST: localhost:3000/users
 // DESCRIPTION: Creates new user (name, email, password) 
 // REQUIRES AUTHENTICATION: No
@@ -137,9 +141,9 @@ router.delete('/users/me', auth, async (req, res) => {
 
 // POST: localhost:3000/users/me/avatar (localhost:3000/users/me/avatar)
 // DESCRIPTION: uploads avatar image
-// Requires Authentication: <...>
+// REQUIRES AUTHENTICATION: Yes
+// NOTE: endpoint uses Mongoose methods (save)
 const upload = multer({
-    dest: 'avatars',
     limits: {
         // 1000000 = 1 megabyte
         fileSize: 1000000,
@@ -152,11 +156,26 @@ const upload = multer({
     }
 })
 
-router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
+    // all the binary data of that file saved to avatar filed in the database (reference schema)
+    req.user.avatar = req.file.buffer
+    await req.user.save()
     res.status(200).send()
 }, (error, req, res, next) => {
     // callback to disguise Multer errors as yours, making the errors simpler
     res.status(400).send({ error: error.message})
+})
+
+
+// DELETE: localhost:3000/users/me/avatar (localhost:3000/users/me/avatar)
+// DESCRIPTION: delete avatar image
+// REQUIRES AUTHENTICATION: Yes
+// NOTE: endpoint uses Mongoose methods (save)
+router.delete('/users/me/avatar', auth, async (req, res) => {
+    // all the binary data of that file saved to avatar filed in the database (reference schema)
+    req.user.avatar = undefined
+    await req.user.save()
+    res.status(200).send()
 })
 
 
