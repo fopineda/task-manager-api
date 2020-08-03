@@ -79,9 +79,10 @@ userSchema.methods.toJSON = function() {
     const user = this
     const userObject = user.toObject()
 
-    // users will not have passwords or tokens being sent to them
+    // users will not have passwords, tokens, or avatar image (save space and speed) being sent to them
     delete userObject.password
     delete userObject.tokens
+    delete userObject.avatar
 
     return userObject
 }

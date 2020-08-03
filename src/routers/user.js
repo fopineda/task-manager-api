@@ -2,6 +2,7 @@ const express = require('express')
 const User = require('../models/user') // grabs the user model 
 const auth = require('../middleware/auth') // grabs the auth middleware
 const multer = require('multer')
+const sharp = require('sharp')
 const router = new express.Router()
 
 
@@ -157,8 +158,10 @@ const upload = multer({
 })
 
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
-    // all the binary data of that file saved to avatar filed in the database (reference schema)
-    req.user.avatar = req.file.buffer
+    // passes the image to sharp library to resize and convert to png
+    const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer()
+    // gives the buffer object to the user object
+    req.user.avatar = buffer
     await req.user.save()
     res.status(200).send()
 }, (error, req, res, next) => {
@@ -194,7 +197,7 @@ router.get('/users/:id/avatar', async (req, res) => {
         }
 
         // normally 'application/json'
-        res.set('Content-Type','image/jpg')
+        res.set('Content-Type','image/png')
         res.send(user.avatar)
     } catch (error) {
         res.status(404).send()
