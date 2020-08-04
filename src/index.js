@@ -4,7 +4,7 @@ const userRouter = require('./routers/user') // grabs user router file
 const taskRouter = require('./routers/task') // grabs task router file
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT
 
 app.use(express.json())
 app.use(userRouter) // loads user routes

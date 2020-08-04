@@ -1,8 +1,6 @@
 const sgMail = require('@sendgrid/mail')
 
-const sendgridAPIKey = '<YOUR_API_KEY_HERE>'
-
-sgMail.setApiKey(sendgridAPIKey)
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 // function is async and can be awaited when called. That is only if you want to wait for the email to be sent in code.
 const sendWelcomeEmail = (email, name) => {

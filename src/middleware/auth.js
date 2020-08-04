@@ -7,7 +7,7 @@ const auth = async (req, res, next) => {
         // obtains the token given in the request header
         const token = req.header('Authorization').replace('Bearer ', '')
         // verifies the token using the secret and returns payload, which in this case the payload is the id of the user (check generateAuthToken(..) in user.js models)
-        const decoded = jwt.verify(token, 'thisismynewcourse')
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
         // find the user with the correct id (user id, not token id), who has the correct token stored.
         // this means that user is still logged in, if he/she logged out then the token wouldn't be there
         const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
