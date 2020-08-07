@@ -1,5 +1,5 @@
 module.exports = {
-    setAPiKey() {
+    setApiKey() {
 
     },
     send() {
