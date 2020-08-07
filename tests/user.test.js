@@ -1,56 +1,38 @@
 const request = require('supertest')
-const jwt = require('jsonwebtoken')
-const mongoose = require('mongoose')
 const app = require('../src/app')
 const User = require('../src/models/user')
+const { userOne, userOneId, setupDatabase } = require('./fixtures/db')
 
 // Supertest (request) makes the request without needing to run application
 // Jest is the testing library (expect)
 
-// Dummy user
-const userOneId = new mongoose.Types.ObjectId()
-const userOne = {
-    _id: userOneId,
-    name: 'Mike',
-    email: 'mike@example.com',
-    password: '56what!!',
-    tokens: [{
-        token: jwt.sign({ _id: userOneId }, process.env.JWT_SECRET)
-    }]
-}
-
 // JEST SET UP: lifecycle methods (ex: beforeEach, afterEach, beforeAll, afterAll, etc.)
-beforeEach(async () => {
-    // deletes all users in the database
-    await User.deleteMany()
-    // adds dummy user from above to database so tests can have a dummy user
-    await new User(userOne).save()
-})
+beforeEach(setupDatabase)
 
 
 // POST: Creating a new user
-// test('Should signup a new user', async () => {
-//     // gets the response from the request
-//     const response = await request(app).post('/users').send({
-//         name: 'Felipe Pineda',
-//         email: 'fopineda95@gmail.com',
-//         password: 'MyPass777!'
-//     }).expect(201)
+test('Should signup a new user', async () => {
+    // gets the response from the request
+    const response = await request(app).post('/users').send({
+        name: 'Felipe Pineda',
+        email: 'fopineda95@gmail.com',
+        password: 'MyPass777!'
+    }).expect(201)
 
-//     // assert that the database was changed correctly and user exists
-//     const user = await User.findById(response.body.user._id)
-//     expect(user).not.toBeNull()
+    // assert that the database was changed correctly and user exists
+    const user = await User.findById(response.body.user._id)
+    expect(user).not.toBeNull()
 
-//     // assertions about the response body object
-//     expect(response.body).toMatchObject({
-//         user:{
-//             name: 'Felipe Pineda',
-//             email: 'fopineda95@gmail.com'
-//         },
-//         token: user.tokens[0].token
-//     })
-//     expect(user.password).not.toBe('MyPass777!')
-// })
+    // assertions about the response body object
+    expect(response.body).toMatchObject({
+        user:{
+            name: 'Felipe Pineda',
+            email: 'fopineda95@gmail.com'
+        },
+        token: user.tokens[0].token
+    })
+    expect(user.password).not.toBe('MyPass777!')
+})
 
 // POST: login user
 test('Should login existing user', async () => {
@@ -142,12 +124,12 @@ test('Should update valid user fields', async () => {
 })
 
 // PATCH: update user fields (name)
-test('Should not update invalid user fields', async () => {
-    await request(app)
-        .patch('/users/me')
-        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
-        .send({
-            location: "Clinton"
-        })
-        .expect(400)
-})
+// test('Should not update invalid user fields', async () => {
+//     await request(app)
+//         .patch('/users/me')
+//         .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+//         .send({
+//             location: 'Philadelphia'
+//         })
+//         .expect(400)
+// })
