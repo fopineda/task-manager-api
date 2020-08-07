@@ -1,2 +1,3 @@
-# task-manager
- 
+# task-manager-api
+
+Task-Manager-API is a backend API for any application that requires Todo functionality. The API has two main items of importance, users and tasks. The users entity represent a person that will create various task. It also provides authentication so that users can only see and modify their tasks. Tasks can also be created, modified, and deleted however they are associated to the user instead of being standalone entities. The API uses MongoDB as the database and Mongoose to model the data. Lastly, the application uses various other modules to help it function. Please have a look!
