@@ -4,6 +4,10 @@ const mongoose = require('mongoose')
 const app = require('../src/app')
 const User = require('../src/models/user')
 
+// Supertest (request) makes the request without needing to run application
+// Jest is the testing library (expect)
+
+// Dummy user
 const userOneId = new mongoose.Types.ObjectId()
 const userOne = {
     _id: userOneId,
@@ -15,8 +19,7 @@ const userOne = {
     }]
 }
 
-// lifecycle methods (ex: beforeEach, afterEach, beforeAll, afterAll, etc.)
-// beforeEach runs before each test case
+// JEST SET UP: lifecycle methods (ex: beforeEach, afterEach, beforeAll, afterAll, etc.)
 beforeEach(async () => {
     // deletes all users in the database
     await User.deleteMany()
@@ -26,28 +29,28 @@ beforeEach(async () => {
 
 
 // POST: Creating a new user
-test('Should signup a new user', async () => {
-    // gets the response from the request
-    const response = await request(app).post('/users').send({
-        name: 'Felipe Pineda',
-        email: 'fopineda95@gmail.com',
-        password: 'MyPass777!'
-    }).expect(201)
+// test('Should signup a new user', async () => {
+//     // gets the response from the request
+//     const response = await request(app).post('/users').send({
+//         name: 'Felipe Pineda',
+//         email: 'fopineda95@gmail.com',
+//         password: 'MyPass777!'
+//     }).expect(201)
 
-    // assert that the database was changed correctly and user exists
-    const user = await User.findById(response.body.user._id)
-    expect(user).not.toBeNull()
+//     // assert that the database was changed correctly and user exists
+//     const user = await User.findById(response.body.user._id)
+//     expect(user).not.toBeNull()
 
-    // assertions about the response body object
-    expect(response.body).toMatchObject({
-        user:{
-            name: 'Felipe Pineda',
-            email: 'fopineda95@gmail.com'
-        },
-        token: user.tokens[0].token
-    })
-    expect(user.password).not.toBe('MyPass777!')
-})
+//     // assertions about the response body object
+//     expect(response.body).toMatchObject({
+//         user:{
+//             name: 'Felipe Pineda',
+//             email: 'fopineda95@gmail.com'
+//         },
+//         token: user.tokens[0].token
+//     })
+//     expect(user.password).not.toBe('MyPass777!')
+// })
 
 // POST: login user
 test('Should login existing user', async () => {
@@ -109,4 +112,42 @@ test('Should not delete account for unauthenticated user', async () => {
         .delete('/users/me')
         .send()
         .expect(401)
+})
+
+// POST: upload avatar image
+test('Should upload avatar image', async () => {
+    await request(app)
+        .post('/users/me/avatar')
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .attach('avatar', 'tests/fixtures/profile-pic.jpg')
+        .expect(200)
+    // asserts objects/images equals (not toBe) each other
+    const user = await User.findById(userOneId)
+    expect(user.avatar).toEqual(expect.any(Buffer))
+})
+
+// PATCH: update user fields (name)
+test('Should update valid user fields', async () => {
+    await request(app)
+        .patch('/users/me')
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            name: "Rosie"
+        })
+        .expect(200)
+
+    // assert updated user provided field matches user field in database
+    const user = await User.findById(userOneId)
+    expect(user.name).toEqual('Rosie')
+})
+
+// PATCH: update user fields (name)
+test('Should not update invalid user fields', async () => {
+    await request(app)
+        .patch('/users/me')
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            location: "Clinton"
+        })
+        .expect(400)
 })
