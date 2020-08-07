@@ -10,7 +10,6 @@ const { userOne, userOneId, setupDatabase } = require('./fixtures/db')
 beforeEach(setupDatabase)
 
 
-// POST: Creating a new user
 test('Should signup a new user', async () => {
     // gets the response from the request
     const response = await request(app).post('/users').send({
@@ -34,7 +33,6 @@ test('Should signup a new user', async () => {
     expect(user.password).not.toBe('MyPass777!')
 })
 
-// POST: login user
 test('Should login existing user', async () => {
     const response = await request(app).post('/users/login').send({
         email: userOne.email,
@@ -47,7 +45,6 @@ test('Should login existing user', async () => {
     expect(response.body.token).toBe(user.tokens[1].token)
 })
 
-// POST: login user
 test('Should not login nonexisting user', async () => {
     await request(app).post('/users/login').send({
         email: 'bad-email',
@@ -55,8 +52,6 @@ test('Should not login nonexisting user', async () => {
     }).expect(400)
 })
 
-
-// GET: get user profile
 test('Should get profile for user', async () => {
     await request(app)
         .get('/users/me')
@@ -65,7 +60,6 @@ test('Should get profile for user', async () => {
         .expect(200)
 })
 
-// GET: get user profile
 test('Should not get profile for user for unauthenticated user', async () => {
     // send without authentication token
     await request(app)
@@ -74,7 +68,6 @@ test('Should not get profile for user for unauthenticated user', async () => {
         .expect(401)
 })
 
-// DELETE: delete user account
 test('Should delete account for user', async () => {
     await request(app)
         .delete('/users/me')
@@ -87,7 +80,6 @@ test('Should delete account for user', async () => {
     expect(user).toBeNull()
 })
 
-// DELETE: delete user account
 test('Should not delete account for unauthenticated user', async () => {
     // send without authentication token. Also, expecting 401 as not authenticated even though route says 500 is sent
     await request(app)
@@ -96,7 +88,6 @@ test('Should not delete account for unauthenticated user', async () => {
         .expect(401)
 })
 
-// POST: upload avatar image
 test('Should upload avatar image', async () => {
     await request(app)
         .post('/users/me/avatar')
@@ -108,7 +99,6 @@ test('Should upload avatar image', async () => {
     expect(user.avatar).toEqual(expect.any(Buffer))
 })
 
-// PATCH: update user fields (name)
 test('Should update valid user fields', async () => {
     await request(app)
         .patch('/users/me')

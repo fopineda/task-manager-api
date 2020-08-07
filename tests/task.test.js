@@ -10,7 +10,6 @@ const { userOne, userTwo, taskOne, setupDatabase } = require('./fixtures/db')
 beforeEach(setupDatabase)
 
 
-// POST: create task
 test('Should create task for user', async () => {
     const response = await request(app)
         .post('/tasks')
@@ -27,7 +26,6 @@ test('Should create task for user', async () => {
     expect(task.description).toBe('From my test')
 })
 
-// GET: get tasks for user
 test('Should get tasks for user', async () => {
     const response = await request(app)
         .get('/tasks')
@@ -40,8 +38,6 @@ test('Should get tasks for user', async () => {
     expect(response.body.length).toEqual(2)
 })
 
-
-// DELETE: user deletes task
 test('Should not delete task', async () => {
     const response = await request(app)
         .delete(`/tasks/${taskOne._id}`)
