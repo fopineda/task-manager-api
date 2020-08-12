@@ -66,7 +66,8 @@ tests/user.test.js tests various endpoint concerning users.
       $ npm test
     ```
 2. You should see
-  ![](readme-images/testing-output.png)
+
+   ![](readme-images/testing-output.png)
 
 * Potential issues:
   * Make sure your config/test.env file is correctly configured.
