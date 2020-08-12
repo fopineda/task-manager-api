@@ -1,6 +1,6 @@
 # task-manager-api
 
-Task-Manager-API is a backend API for any application that requires Todo functionality. The API has two main items of importance, users and tasks. The users entity represent a person that will create various tasks. It also provides authentication so that users can only see and modify their tasks. Tasks can also be created, modified, and deleted however they are associated to the user instead of being standalone entities. The API uses MongoDB as the database and Mongoose to model the data. Lastly, the application uses various other modules to help it function. Please have a look!
+task-manager-api is a backend API for any application that requires Todo functionality. The API has two main items of importance, users and tasks. The users entity represent a person that will create various tasks. It also provides authentication so that users can only see and modify their tasks. Tasks can also be created, modified, and deleted however they are associated to the user instead of being standalone entities. The API uses MongoDB as the database and Mongoose to model the data. Lastly, the application uses various other modules to help it function. Please have a look!
 
 ## Key Items
 - MongoDB
@@ -19,10 +19,10 @@ Be advised, this is an API project so in order to perform its operations you'll 
 ### Getting Started
 1. Clone or download project
 2. Install dependencies
-```bash
-$ cd task-manager-api
-$ npm install
-```
+      ```bash
+      $ cd task-manager-api
+      $ npm install
+      ```
 3. Installing MongoDB
   * Please find clear instructions on this [link](https://docs.mongodb.com/guides/server/install/).
   * Install Robo3T or MongoDB Atlas so that you can view your database through a GUI. These applications are pivotal to seeing your data when interacting with the API. [Robo3T](https://robomongo.org/) or [MongoDB Atlas](https://www.mongodb.com/cloud/atlas). I recommend Robot3T as it is really easy to handle. You can view what's in your database and in make changes if you need to. 
@@ -34,7 +34,7 @@ $ npm install
   * __MONGODB_URL__: This represents the URL of your localhost or production database. You will need to have a database set up to see the data (users and tasks) show up. The default URL is "mongodb://127.0.0.1:27017/task-manager-api". This should work as it's technically the default for MongoDB. The "task-manager-api" part at the end would be your application name.
   * __JWT_SECRET__: Secret represents the added value that is inputted into the hashing algorithm used to hash passwords within the API. API uses hashing on in-place and in-transit password to provide security for its users.
 
-Once you have steps 1-4 set up, then the application should be working as the variables above will be placed into each of the areas needed through the API (ex: JWT_SECRET -> middleware/auth.js). 
+Once you have steps 1-4 set up, then the application should be able to run as the variables above will be placed into each of the areas needed throughout the API (ex: JWT_SECRET -> middleware/auth.js). 
 
 5. Run API project
 ```bash
@@ -45,6 +45,33 @@ $ npm run dev
 
 
 ## Testing
+All necessary testing items can be found in the tests folder.
+* \_\_mocks\_\_
+  * mail.js: Contains mocking functions that will run instead of the original mailing functions (sending emails) so that you don't send emails over and over again. It stops annoying emails from going out when you test the API.
+* fixtures
+  * db.js: Contains dummy users and tasks necessary for testing. The dummy users and tasks are inserted/removed into/from the database at time of running tests. The entire file is exported to a lifecycle method in the testing suites that actually performs the inserting/removing.
+  * profile-pic.jpg: just an image used for the upload avatar test.
+
+Currently, task-manager-api has two testing suites: tests/task.test.js and tests/user.test.js
+
+tests/task.test.js tests various endpoints concerning tasks.
+
+tests/user.test.js tests various endpoint concerning users.
+
+### Running tests:
+
+1. Run
+
+    ```bash
+      $ npm test
+    ```
+2. You should see
+  ![](readme-images/testing-output.png)
+
+* Potential issues:
+  * Make sure your config/test.env file is correctly configured.
+  * Make sure devDependencies in package.json are installed.
+
 
 
 ## Contributing
