@@ -70,6 +70,7 @@ tests/user.test.js tests various endpoint concerning users.
    ![](readme-images/testing-output.png)
 
 * Potential issues:
+  * Make sure database is running. If your tests are hanging that's probably it.
   * Make sure your config/test.env file is correctly configured.
   * Make sure devDependencies in package.json are installed.
 
